@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estrellas de Haven</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f7edda; color: #322a20; text-align: center; font: 18px system-ui; }
+  #campo { position: relative; height: 235px; max-width: 560px; margin: 16px auto; border: 2px solid #322a20; border-radius: 18px; background: #fff9ec; }
+  button { font: inherit; cursor: pointer; border: 2px solid #322a20; border-radius: 12px; padding: 8px 14px; background: #ffbc65; color: inherit; }
+  #estrella { position: absolute; width: 55px; height: 55px; font-size: 25px; padding: 0; }
+</style>
+<h1>Estrellas de Haven</h1>
+<p>Atrapa cinco estrellas antes de que se acabe el tiempo.</p>
+<button id="empezar">Jugar</button>
+<p id="estado" role="status">0 / 5 · 15 s</p>
+<div id="campo"><button id="estrella" hidden aria-label="Atrapar estrella">★</button></div>
+<script>
+  const campo = document.querySelector('#campo');
+  const estrella = document.querySelector('#estrella');
+  const estado = document.querySelector('#estado');
+  const empezar = document.querySelector('#empezar');
+  let puntos = 0;
+  let fin = 0;
+  let reloj;
+
+  function mover() {
+    estrella.style.left = Math.floor(Math.random() * Math.max(0, campo.clientWidth - 55)) + 'px';
+    estrella.style.top = Math.floor(Math.random() * Math.max(0, campo.clientHeight - 55)) + 'px';
+  }
+
+  function terminar(mensaje) {
+    clearInterval(reloj);
+    estrella.hidden = true;
+    empezar.disabled = false;
+    empezar.textContent = 'Volver a jugar';
+    estado.textContent = mensaje;
+  }
+
+  function actualizar() {
+    const segundos = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
+    estado.textContent = `${puntos} / 5 · ${segundos} s`;
+    if (!segundos) terminar(`Se acabó el tiempo. Atrapaste ${puntos} de 5.`);
+  }
+
+  empezar.onclick = () => {
+    puntos = 0;
+    fin = Date.now() + 15000;
+    empezar.disabled = true;
+    estrella.hidden = false;
+    mover();
+    actualizar();
+    reloj = setInterval(actualizar, 200);
+  };
+  estrella.onclick = () => {
+    if (Date.now() >= fin) { actualizar(); return; }
+    puntos++;
+    if (puntos === 5) { terminar('¡Ganaste! Atrapaste las cinco estrellas.'); return; }
+    mover();
+    actualizar();
+  };
+</script>
+</html>
